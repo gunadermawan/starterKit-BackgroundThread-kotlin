@@ -2,7 +2,12 @@ package com.gunder.backgroundthread
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.gunder.backgroundthread.databinding.ActivityMainBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -11,21 +16,21 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         binding.btnStart.setOnClickListener {
+            lifecycleScope.launch(Dispatchers.Default) {
 //            simulate background process
-            try {
                 for (i in 1..10) {
-                    Thread.sleep(5000)
+                    delay(500)
                     val precentage = i * 10
-                    if (precentage == 100) {
-                        binding.tvStatus.setText(R.string.task_completed)
-                    } else {
-                        binding.tvStatus.text =
-                            String.format(getString(R.string.compressing), precentage)
+                    withContext(Dispatchers.Main) {
+                        if (precentage == 100) {
+                            binding.tvStatus.setText(R.string.task_completed)
+                        } else {
+                            binding.tvStatus.text =
+                                String.format(getString(R.string.compressing), precentage)
+                        }
                     }
                 }
 
-            } catch (e: InterruptedException) {
-                e.printStackTrace()
             }
         }
     }
